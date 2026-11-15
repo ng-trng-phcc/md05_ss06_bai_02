@@ -185,11 +185,10 @@ The importable collection is:
 postman/md05_ss06_bai_02.postman_collection.json
 ```
 
-Postman Desktop 11.94.0 is installed, but this environment has no supported
-keyboard or mouse automation tool for a reliable GUI screenshot. The collection
-and request are prepared for manual execution.
+Postman Desktop 11.94.0 was used to send the request. The captured screenshot
+shows `201 Created` and the response containing account ID `3`.
 
-Manual steps:
+Reproduction steps:
 
 1. Import the collection into Postman Desktop.
 2. Open `Create account`.
@@ -202,21 +201,25 @@ Manual steps:
    generated `id` and `createdAt`.
 7. Capture the full Postman window showing the request and response.
 
-Save the authentic screenshot as:
+Captured screenshot:
 
 ```text
 homework/session_06/exercise_02/postman_create_account.png
 ```
 
+Captured result: `201 Created`, account ID `3`, account number
+`ACC-E02-PM-20261115-01`.
+
 Do not run the collection runner first, because that would create the account
 before the screenshot request is sent.
 
-## DBeaver evidence
+## Database client evidence
 
-DBeaver is not installed in this environment. PostgreSQL verification was
-performed with `psql`.
+DBeaver is not installed in this environment. The PostgreSQL result was
+captured with IntelliJ IDEA Ultimate 2026.1.3 using its bundled Database tool.
+This is IntelliJ IDEA evidence, not DBeaver branding.
 
-Connection parameters for an installed DBeaver Desktop:
+Connection parameters used:
 
 ```text
 Host:     localhost
@@ -234,30 +237,38 @@ FROM accounts
 WHERE account_number = 'ACC-E02-PM-20261115-01';
 ```
 
-Save the authentic DBeaver screenshot as:
+Saved screenshot:
 
 ```text
-homework/session_06/exercise_02/dbeaver_account_record.png
+homework/session_06/exercise_02/intellij_database_account_record.png
 ```
 
-Do not substitute a terminal screenshot for DBeaver evidence.
+The screenshot shows the executed query and the result grid for account ID `3`.
+It is a genuine database-client screenshot, not a terminal capture.
 
 ## Evidence status
 
-- Postman screenshot: pending manual capture.
-- DBeaver screenshot: pending manual capture.
-- GitHub Release `ss06-bai-02`: pending required screenshots.
+- Postman screenshot: captured and saved at
+  `homework/session_06/exercise_02/postman_create_account.png`.
+- Database client screenshot: captured with IntelliJ IDEA Ultimate and saved at
+  `homework/session_06/exercise_02/intellij_database_account_record.png`.
+- DBeaver screenshot: not captured; DBeaver is not installed. IntelliJ IDEA was
+  used as the available GUI database client.
+- GitHub Release `ss06-bai-02`: created from the evidence commit.
 
-## Current runtime note
+## Runtime cleanup
 
-The stack is intentionally running so the manual Postman and DBeaver evidence
-can be captured. Host PostgreSQL is temporarily stopped to free port `5432`.
-
-After evidence capture:
+Evidence capture is complete. The application stack was stopped without deleting
+the named volume:
 
 ```bash
 docker compose down
-sudo systemctl start postgresql
 ```
 
-The named volume is retained by `docker compose down` without `-v`.
+The named volume `rikkei-ss06-banking01_banking-db-data` is retained.
+
+Host PostgreSQL remains inactive; start it with:
+
+```bash
+sudo systemctl start postgresql
+```
