@@ -1,0 +1,352 @@
+{
+  "info": {
+    "name": "Session 06 - Exercise 02 - Banking Account Service",
+    "description": "Create, retrieve, and list banking accounts through the Account Service REST API.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "noauth"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "accountNumber",
+      "value": "ACC-E02-PM-20261115-01"
+    },
+    {
+      "key": "ownerName",
+      "value": "Nguyen Van A"
+    },
+    {
+      "key": "initialBalance",
+      "value": "1000000.00"
+    },
+    {
+      "key": "invalidAccountNumber",
+      "value": "ACC-E02-INVALID-20261115-01"
+    },
+    {
+      "key": "accountId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Create account",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 201\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "",
+              "pm.test(\"Location header is present\", function () {",
+              "    pm.expect(pm.response.headers.has(\"Location\")).to.eql(true);",
+              "});",
+              "",
+              "const body = pm.response.json();",
+              "",
+              "pm.test(\"Response has generated id\", function () {",
+              "    pm.expect(body.id).to.be.a(\"number\");",
+              "});",
+              "",
+              "pm.test(\"Account number matches\", function () {",
+              "    pm.expect(body.accountNumber).to.eql(pm.collectionVariables.get(\"accountNumber\"));",
+              "});",
+              "",
+              "pm.test(\"Owner name matches\", function () {",
+              "    pm.expect(body.ownerName).to.eql(pm.collectionVariables.get(\"ownerName\"));",
+              "});",
+              "",
+              "pm.test(\"Balance matches\", function () {",
+              "    pm.expect(Number(body.balance)).to.eql(Number(pm.collectionVariables.get(\"initialBalance\")));",
+              "});",
+              "",
+              "pm.test(\"Response has generated createdAt\", function () {",
+              "    pm.expect(body.createdAt).to.be.a(\"string\");",
+              "});",
+              "",
+              "pm.collectionVariables.set(\"accountId\", body.id);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"accountNumber\": \"{{accountNumber}}\",\n  \"ownerName\": \"{{ownerName}}\",\n  \"initialBalance\": {{initialBalance}}\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/accounts",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "accounts"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get account by id",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "const body = pm.response.json();",
+              "",
+              "pm.test(\"Account id matches\", function () {",
+              "    pm.expect(String(body.id)).to.eql(String(pm.collectionVariables.get(\"accountId\")));",
+              "});",
+              "",
+              "pm.test(\"Account number matches\", function () {",
+              "    pm.expect(body.accountNumber).to.eql(pm.collectionVariables.get(\"accountNumber\"));",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/accounts/{{accountId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "accounts",
+            "{{accountId}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "List accounts",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "const body = pm.response.json();",
+              "",
+              "pm.test(\"Response is an array\", function () {",
+              "    pm.expect(body).to.be.an(\"array\");",
+              "});",
+              "",
+              "pm.test(\"Created account is present\", function () {",
+              "    const id = Number(pm.collectionVariables.get(\"accountId\"));",
+              "    pm.expect(body.some(function (item) { return item.id === id; })).to.eql(true);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/accounts",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "accounts"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Duplicate account number",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 409\", function () {",
+              "    pm.response.to.have.status(409);",
+              "});",
+              "",
+              "const body = pm.response.json();",
+              "",
+              "pm.test(\"Error response is concise JSON\", function () {",
+              "    pm.expect(body).to.have.property(\"status\", 409);",
+              "    pm.expect(body).to.have.property(\"error\");",
+              "    pm.expect(body).to.have.property(\"message\");",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"accountNumber\": \"{{accountNumber}}\",\n  \"ownerName\": \"{{ownerName}}\",\n  \"initialBalance\": {{initialBalance}}\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/accounts",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "accounts"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Invalid negative balance",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 400\", function () {",
+              "    pm.response.to.have.status(400);",
+              "});",
+              "",
+              "pm.test(\"Error response is concise JSON\", function () {",
+              "    const body = pm.response.json();",
+              "    pm.expect(body).to.have.property(\"status\", 400);",
+              "    pm.expect(body).to.have.property(\"message\");",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"accountNumber\": \"{{invalidAccountNumber}}\",\n  \"ownerName\": \"{{ownerName}}\",\n  \"initialBalance\": -1\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/accounts",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "accounts"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Unknown account",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 404\", function () {",
+              "    pm.response.to.have.status(404);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/accounts/999999999",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "accounts",
+            "999999999"
+          ]
+        }
+      }
+    }
+  ]
+}
